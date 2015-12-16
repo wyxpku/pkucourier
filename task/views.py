@@ -146,3 +146,27 @@ def get_user_tasks(request, uid):
     resp['message'] = 'Success!!'
     resp['data'] = taskinfo
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+def all(request):
+    resp = {}
+    if request.method != 'GET':
+        resp['status'] = 1
+        resp['message'] = 'Wrong http method!'
+        return HttpResponse(json.dumps(json), content_type='application/json')
+
+    tasks = Task.objects.all()
+    tasks_info = []
+    for task in tasks:
+        info = task.ap_to_dict()
+        info['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
+        info['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
+        info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
+        info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
+        userinfo = task.owner.to_dict()
+        userinfo['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
+        info['owner'] = userinfo
+        tasks_info.append(info)
+    resp['status'] = 0
+    resp['message'] = 'Success'
+    resp['data'] = tasks_info
+    return HttpResponse(json.dumps(resp), content_type='application/json')
