@@ -8,6 +8,7 @@ import urllib.request
 from urllib.error import URLError
 from .sendEmail import *
 import base64
+from .easemobSendMessage import *
 # Create your views here.
 
 
@@ -111,6 +112,7 @@ def user_info(request, uid):
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 
+# 用户验证的入口
 def verify(request):
     resp = {}
     if request.method != 'GET':
@@ -130,6 +132,18 @@ def verify(request):
     resp['status'] = 0
     resp['message'] = 'Success'
     return HttpResponse(json.dumps(resp), content_type='application/json')
+
+
+# 系统发送消息
+def send_message_admin(request):
+    resp = {}
+    if request.method != 'GET':
+        resp['status'] = '1'
+        resp['message'] = 'Wrong method'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    user = request.GET['user']
+    message = "hello from admin"
+    send_message(user, message)
 
 
 # 注册环信
