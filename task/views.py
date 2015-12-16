@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from task.models import Task
 from user.models import User
-
+from deal.models import Deal
+from django.db import transaction
 import json
 import datetime
 # Create your views here.
@@ -106,12 +107,69 @@ def get_info(request, tid):
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
+@transaction.atomic
 def task_resp(request):
     resp = {}
     if request.method != 'POST':
-        resp['status'] = '1'
+        resp['status'] = 1
         resp['message'] = 'Wrong http method!'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    task_id = request.POST['task_id']
+    #owner_id = request.POST['owner_id']
+    user_id = request.POST['user_id']
+    task = None
+
+    try:
+        task = Task.objects.select_for_update().filter(id=task_id)
+    except:
+        resp['status'] = '7'
+        resp['message'] = 'datebase locked!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    if not task.exists():
+        resp['status'] = 2
+        resp['message'] = 'No such task'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    elif len(task) > 1:
+        resp['status'] = 3
+        resp['message'] = 'Too many tasks found'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    user = User.objects.filter(id=user_id)
+    if not user.exists():
+        resp['status'] = 4
+        resp['message'] = 'No such user'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].owner.id == user[0].id:
+        resp['status'] = 5
+        resp['message'] = 'You can\'t response to your own task!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].status == 1:
+        resp['status'] = 6
+        resp['message'] = 'Task is already toke by others'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    task[0].status = 1
+    task[0].save()
+
+    deal = Deal(task = task[0], needer = task[0].owner, helper=user[0], build_time=datetime.datetime.now())
+    deal.save()
+    if deal.id is None:
+        resp['status'] = 7
+        resp['message'] = 'Failed to create new deal'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    dealinfo = deal.to_dict()
+    dealinfo['build_time'] = deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
+    neederinfo = deal.needer.to_dict()
+    neederinfo['signup_time'] = deal.needer.signup_time.strftime('%Y-%m-%d %H:%M:%S')
+    helperinfo = deal.helper.to_dict()
+    helperinfo['signup_time'] = deal.helper.signup_time.strftime('%Y-%m-%d %H:%M:%S')
+    dealinfo['needer'] = neederinfo
+    dealinfo['helper'] = helperinfo
+    dealinfo['task'] = task[0].id
+    resp['status'] = 0
+    resp['message'] = 'Success'
+    resp['data'] = dealinfo
+    return HttpResponse(json.dumps(resp), content_type='application/json')
 
 
 def get_user_tasks(request, uid):
@@ -146,6 +204,7 @@ def get_user_tasks(request, uid):
     resp['message'] = 'Success!!'
     resp['data'] = taskinfo
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
 
 def all(request):
     resp = {}
