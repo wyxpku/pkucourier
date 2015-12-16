@@ -39,7 +39,7 @@ def new(request):
             info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
             info['owner'] = task.owner.to_dict()
             info['owner']['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
-            resp['data'] = json.dumps(info)
+            resp['data'] = info
             return HttpResponse(json.dumps(resp), content_type = 'application/json')
         else:
             resp['status'] = 1
@@ -75,7 +75,7 @@ def get_ap_info(request, tid):
     info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
     info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
-    resp['data'] = json.dumps(info)
+    resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 def get_info(request, tid):
@@ -103,7 +103,7 @@ def get_info(request, tid):
     info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
     info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
-    resp['data'] = json.dumps(info)
+    resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 def task_resp(request):
@@ -144,5 +144,5 @@ def get_user_tasks(request, uid):
         taskinfo.append(tmp)
     resp['status'] = 0
     resp['message'] = 'Success!!'
-    resp['data'] = json.dumps(taskinfo)
+    resp['data'] = taskinfo
     return HttpResponse(json.dumps(resp), content_type = 'application/json')

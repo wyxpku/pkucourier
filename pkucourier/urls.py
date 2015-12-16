@@ -23,5 +23,4 @@ urlpatterns = [
     url(r'^task/', include('task.urls')),
     url(r'^will/', include('will.urls')),
     url(r'^deal/', include('deal.urls')),
-
 ]
