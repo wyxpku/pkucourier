@@ -116,8 +116,33 @@ def task_resp(request):
 
 def get_user_tasks(request, uid):
     resp = {}
-    if request != 'GET':
+    if request.method != 'GET':
         resp['status'] = 1
-        resp['message'] = 'Wrong Http method!'
+        resp['message'] = 'Wrong Http method whill get user tasks'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
-    
+    user = User.objects.filter(id = uid)
+    if not user.exists():
+        resp['status'] = 2
+        resp['message'] = 'No user found!'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    elif len(user) > 1:
+        resp['status'] = 3
+        resp['message'] = 'Too many users found, Impossible!'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+    tasks = Task.objects.filter(owner = user[0])
+    userinfo = user[0].to_dict()
+    userinfo['signup_time'] = user[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
+    taskinfo = []
+    for task in tasks:
+        tmp = task.ap_to_dict()
+        tmp['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
+        tmp['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
+        tmp['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
+        tmp['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
+        tmp['owner'] = userinfo
+        taskinfo.append(tmp)
+    resp['status'] = 0
+    resp['message'] = 'Success!!'
+    resp['data'] = json.dumps(taskinfo)
+    return HttpResponse(json.dumps(resp), content_type = 'application/json')
