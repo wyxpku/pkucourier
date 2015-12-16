@@ -22,7 +22,6 @@ def new(request):
     give_time = request.POST['give_time']
     curtime = datetime.datetime.now()
     user = User.objects.filter(id = owner)
-    print(len(user))
     if user.exists() and len(user) == 1:
         task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
                     pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
@@ -35,9 +34,11 @@ def new(request):
             resp['message'] = 'Success'
             info = task.to_dict()
             info['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-            info['fetch_etime'] = str(task.fetch_etime)
-            info['give_time'] = str(task.give_time.strftime)
-            info['build_time'] = str(task.build_time)
+            info['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
+            info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
+            info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
+            info['owner'] = task.owner.to_dict()
+            info['owner']['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
             resp['data'] = json.dumps(info)
             return HttpResponse(json.dumps(resp), content_type = 'application/json')
         else:
@@ -68,10 +69,12 @@ def get_ap_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].ap_to_dict()
-    info['fetch_btime'] = str(task.fetch_btime)
-    info['fetch_etime'] = str(task.fetch_etime)
-    info['give_time'] = str(task.give_time.strftime)
-    info['build_time'] = str(task.build_time)
+    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
+    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
+    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
+    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
+    info['owner'] = task[0].owner.to_dict()
+    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = json.dumps(info)
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
@@ -94,10 +97,12 @@ def get_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].to_dict()
-    info['fetch_btime'] = task[0].fetch_btime.strftime('YYYY-MM-DD HH:MM')
-    info['fetch_etime'] = str(task.fetch_etime)
-    info['give_time'] = str(task.give_time.strftime)
-    info['build_time'] = str(task.build_time)
+    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
+    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
+    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
+    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
+    info['owner'] = task[0].owner.to_dict()
+    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = json.dumps(info)
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
@@ -108,3 +113,11 @@ def task_resp(request):
         resp['message'] = 'Wrong http method!'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
+
+def get_user_tasks(request, uid):
+    resp = {}
+    if request != 'GET':
+        resp['status'] = 1
+        resp['message'] = 'Wrong Http method!'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    

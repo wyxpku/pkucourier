@@ -16,7 +16,7 @@ class Task(models.Model):
     status = models.IntegerField(default = 0) # 0:未接, 1:已解
     def to_dict(self):
         return dict(
-            approximate_fplace = self.approximate_fplace, detailed_fplace = self.detailed_fplace,
+            id = self.id, approximate_fplace = self.approximate_fplace, detailed_fplace = self.detailed_fplace,
             pto = self.pto, code = self.code, fetch_btime = str(self.fetch_btime), fetch_etime = str(self.fetch_etime),
             build_time = str(self.build_time), give_time = str(self.give_time), info = self.info, owner = self.owner,
             status = self.status
@@ -24,7 +24,7 @@ class Task(models.Model):
     # only return approximate information
     def ap_to_dict(self):
         return dict(
-            approximate_fplace = self.approximate_fplace, pto = self.pto, fetch_btime = str(self.fetch_btime),
+            id = self.id, approximate_fplace = self.approximate_fplace, pto = self.pto, fetch_btime = str(self.fetch_btime),
             fetch_etime = str(self.fetch_etime), build_time = str(self.build_time),
             give_time = str(self.give_time), info = self.info, owner = self.owner, status = self.status
         )

@@ -32,7 +32,7 @@ def signup(request):
         resp['status'] = 0
         resp['message'] = 'Success!'
         mydict = u1.to_dict()
-        mydict['signup_time'] = str(u1.signup_time)
+        mydict['signup_time'] = u1.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         resp['data'] = json.dumps(mydict)
     else:
         resp['status'] = 1
@@ -61,7 +61,7 @@ def login(request):
         resp['status'] = 0
         resp['message'] = 'Success'
         info = user[0].to_dict()
-        info['signup_time'] = str(user[0].signup_time)
+        info['signup_time'] = user[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
         resp['data'] = json.dumps(info)
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
     else:
@@ -93,7 +93,7 @@ def user_info(request, uid):
         resp['status'] = '0'
         resp['message'] = 'Success!'
         info = tmpuser[0].to_dict()
-        info['signup_time'] = str(tmpuser[0].signup_time)
+        info['signup_time'] = tmpuser[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
         resp['data'] = json.dumps(info)
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
