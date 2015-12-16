@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import urllib.request
 from urllib.error import URLError
 from .sendEmail import *
+import base64
 # Create your views here.
 
 
@@ -32,8 +33,8 @@ def signup(request):
     # 向用户发送验证邮件
     if certify(email) is False:
         return HttpResponse('The email is wrong!')
-    if signupHX(hx_username, hx_password) is False:
-        return HttpResponse('Huanxin register failed!')
+    # if signupHX(hx_username, hx_password) is False:
+    #     return HttpResponse('Huanxin register failed!')
     u1 = User(name = username, email = email, password = password, signup_time = cur_time,
               hx_username = hx_username, hx_password = hx_password)
     u1.save()
@@ -110,6 +111,28 @@ def user_info(request, uid):
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 
+def verify(request):
+    resp = {}
+    if request.method != 'GET':
+        resp['status'] = '1'
+        resp['message'] = 'Wrong method'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    # 暂时先只用邮箱加密，后面可以再做修改
+    code = request.GET['coding']
+    code = code.encode()
+    code = base64.urlsafe_b64decode(code).decode()
+    tmp = User.objects.get(email = code)
+    if not tmp:
+        resp['status'] = '1'
+        resp['message'] = 'No such user!'
+    tmp.status = 1
+    tmp.save()
+    resp['status'] = 0
+    resp['message'] = 'Success'
+    return HttpResponse(json.dumps(resp), content_type='application/json')
+
+
+# 注册环信
 def signupHX(username, password):
     url_gettoken = "https://a1.easemob.com/ziyuanliu/pkucarrier/token"
     header = {"Content-Type": "application/json"}
@@ -136,10 +159,14 @@ def signupHX(username, password):
 
 
 # 向用户发送包含特定链接的邮件，验证用户的身份
+# coding参数
 def certify(email):
     to_list = [email]
+    code = email.encode()
+    code = base64.urlsafe_b64encode(code)
+    code = code.decode()
     # this url should be changed
-    url = 'http://'
+    url = 'http://localhost:8000/user/verify/?coding=' + code
     if send_mail(to_list, url):
         return True
     else:
