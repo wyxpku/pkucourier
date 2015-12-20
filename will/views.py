@@ -38,7 +38,6 @@ def new(request):
     resp['status'] = 0
     resp['message'] = 'Success!'
     info = will.to_dict()
-    info['build_time'] = will.build_time.strftime('%Y-%m-%d %H:%M:%S')
     ownerinfo = owner.to_dict()
     info['owner'] = ownerinfo
     resp['data'] = info
@@ -64,7 +63,6 @@ def get_info(request, wid):
     resp['status'] = 0
     resp['message'] = 'Success!!'
     willinfo = will[0].to_dict()
-    willinfo['build_time'] = will[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     userinfo = will[0].owner.to_dict()
     willinfo['owner'] = userinfo
     resp['data'] = willinfo
@@ -83,7 +81,6 @@ def all(request):
     wills_info = []
     for will in wills:
         info = will.to_dict()
-        info['build_time'] = will.build_time.strftime('%Y-%m-%d %H:%M:%S')
         ownerinfo = will.owner.to_dict()
         info['owner'] = ownerinfo
         wills_info.append(info)

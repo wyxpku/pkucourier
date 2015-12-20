@@ -39,12 +39,7 @@ def new(request):
             resp['status'] = 0
             resp['message'] = 'Success'
             info = task.to_dict()
-            info['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-            info['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-            info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
-            info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
             info['owner'] = task.owner.to_dict()
-            info['owner']['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
             resp['data'] = info
             return HttpResponse(json.dumps(resp), content_type = 'application/json')
         else:
@@ -75,12 +70,7 @@ def get_ap_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].ap_to_dict()
-    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
-    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
-    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
@@ -103,12 +93,7 @@ def get_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].to_dict()
-    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
-    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
-    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
@@ -170,11 +155,8 @@ def task_resp(request):
         return HttpResponse(json.dumps(resp), content_type='application/json')
 
     dealinfo = deal.to_dict()
-    dealinfo['build_time'] = deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
     neederinfo = deal.needer.to_dict()
-    neederinfo['signup_time'] = deal.needer.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     helperinfo = deal.helper.to_dict()
-    helperinfo['signup_time'] = deal.helper.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     dealinfo['needer'] = neederinfo
     dealinfo['helper'] = helperinfo
     dealinfo['task'] = task[0].id
@@ -205,10 +187,6 @@ def get_user_tasks(request, uid):
     taskinfo = []
     for task in tasks:
         tmp = task.ap_to_dict()
-        tmp['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmp['owner'] = userinfo
         taskinfo.append(tmp)
     resp['status'] = 0
@@ -228,10 +206,6 @@ def all(request):
     tasks_info = []
     for task in tasks:
         info = task.ap_to_dict()
-        info['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-        info['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-        info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
-        info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
         userinfo = task.owner.to_dict()
         info['owner'] = userinfo
         tasks_info.append(info)

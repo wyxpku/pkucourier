@@ -24,7 +24,6 @@ def get_info(request, did):
         return HttpResponse(json.dumps(resp), content_type='application/json')
 
     dealinfo = deal[0].to_dict()
-    dealinfo['build_time'] = deal[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     helperinfo = deal[0].helper.to_dict()
     neederinfo = deal[0].needer.to_dict()
     dealinfo['needer'] = neederinfo
@@ -59,13 +58,11 @@ def get_user_deals(request, uid):
     needer_deals_info = []
     for helper_deal in helper_deals:
         tmpinfo = helper_deal.to_dict()
-        tmpinfo['build_time'] = helper_deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['helper'] = helper_deal.helper.to_dict()
         tmpinfo['needer'] = helper_deal.needer.to_dict()
         helper_deals_info.append(tmpinfo)
     for needer_deal in needer_deals:
         tmpinfo = needer_deal.to_dict()
-        tmpinfo['build_time'] = needer_deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['helper'] = needer_deal.helper.to_dict()
         tmpinfo['needer'] = needer_deal.needer.to_dict()
         needer_deals_info.append(tmpinfo)

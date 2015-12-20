@@ -12,6 +12,6 @@ class Will(models.Model):
     def to_dict(self):
         return dict(
             id = self.id, pfrom = self.pfrom, pto = self.pto, info = self.info,
-            build_time = str(self.build_time), owner = self.owner
+            build_time = self.build_time.strftime('%Y-%m-%d %H:%M:%S'), owner = self.owner
         )
 
