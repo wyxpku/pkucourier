@@ -80,12 +80,14 @@ def login(request):
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 
-def all(request):
+def getall(request):
+    resp = {}
     users = User.objects.all()
     usersinfo = []
     for usertmp in users:
         usersinfo.append(usertmp.to_dict())
-    return HttpResponse(json.dumps(usersinfo), content_type='application/json')
+    resp['data'] = usersinfo
+    return HttpResponse(json.dumps(resp), content_type='application/json')
 
 
 def user_info(request, uid):
