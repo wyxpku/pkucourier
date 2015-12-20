@@ -72,3 +72,31 @@ def get_user_deals(request, uid):
     resp['data']['needer_deal'] = needer_deals_info
     resp['data']['helper_deal'] = helper_deals_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
+
+def complete(request):
+    resp = {}
+    if request.method != 'POST':
+        resp['status'] = 1
+        resp['message'] = 'Wrong http method'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    deal_id = request.POST['deal_id']
+    email = request.POST['email']
+    password = request.POST['password']
+
+    deal = Deal.objects.filter(id=deal_id)
+    if not deal.exists():
+        resp['status'] = 2
+        resp['message'] = 'No such deal'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+    user = deal[0].task.owner
+    if user.email == email and user.password == password:
+        deal[0].status = 1
+        deal[0].save()
+        resp['status'] = 0
+        resp['message'] = 'Success'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    else:
+        resp['status'] = 3
+        resp['message'] = 'No right or wrong password'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
