@@ -40,7 +40,6 @@ def new(request):
     info = will.to_dict()
     info['build_time'] = will.build_time.strftime('%Y-%m-%d %H:%M:%S')
     ownerinfo = owner.to_dict()
-    ownerinfo['signup_time'] = owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = ownerinfo
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type='application/json')
@@ -67,7 +66,6 @@ def get_info(request, wid):
     willinfo = will[0].to_dict()
     willinfo['build_time'] = will[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     userinfo = will[0].owner.to_dict()
-    userinfo['signup_time'] = will[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     willinfo['owner'] = userinfo
     resp['data'] = willinfo
     return HttpResponse(json.dumps(resp), content_type='application/json')
@@ -87,7 +85,6 @@ def all(request):
         info = will.to_dict()
         info['build_time'] = will.build_time.strftime('%Y-%m-%d %H:%M:%S')
         ownerinfo = will.owner.to_dict()
-        ownerinfo['signup_time'] = will.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         info['owner'] = ownerinfo
         wills_info.append(info)
 

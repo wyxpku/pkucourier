@@ -15,6 +15,6 @@ class User(models.Model):
     def to_dict(self):
         return dict(
             uid = self.id, name = self.name, email = self.email, status = self.status,
-            signup_time = self.signup_time, bonus = self.bonus,
-            hx_username = self.hx_username, hx_password = self.hx_password
+            signup_time = self.signup_time.strftime('%Y-%m-%d %H:%M:%S'),
+            bonus = self.bonus, hx_username = self.hx_username, hx_password = self.hx_password
         )

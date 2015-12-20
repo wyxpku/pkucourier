@@ -27,8 +27,6 @@ def get_info(request, did):
     dealinfo['build_time'] = deal[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     helperinfo = deal[0].helper.to_dict()
     neederinfo = deal[0].needer.to_dict()
-    helperinfo['signup_time'] = deal[0].helper.signup_time.strftime('%Y-%m-%d %H:%M:%S')
-    neederinfo['signup_time'] = deal[0].needer.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     dealinfo['needer'] = neederinfo
     dealinfo['helper'] = helperinfo
     resp['status'] = 0
@@ -63,17 +61,13 @@ def get_user_deals(request, uid):
         tmpinfo = helper_deal.to_dict()
         tmpinfo['build_time'] = helper_deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['helper'] = helper_deal.helper.to_dict()
-        tmpinfo['helper']['signup_time'] = helper_deal.helper.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['needer'] = helper_deal.needer.to_dict()
-        tmpinfo['needer']['signup_time'] = helper_deal.needer.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         helper_deals_info.append(tmpinfo)
     for needer_deal in needer_deals:
         tmpinfo = needer_deal.to_dict()
         tmpinfo['build_time'] = needer_deal.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['helper'] = needer_deal.helper.to_dict()
-        tmpinfo['helper']['signup_time'] = needer_deal.helper.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         tmpinfo['needer'] = needer_deal.needer.to_dict()
-        tmpinfo['needer']['signup_time'] = needer_deal.needer.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         needer_deals_info.append(tmpinfo)
 
     resp['status'] = 0

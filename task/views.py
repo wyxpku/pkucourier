@@ -202,7 +202,6 @@ def get_user_tasks(request, uid):
 
     tasks = Task.objects.filter(owner = user[0])
     userinfo = user[0].to_dict()
-    userinfo['signup_time'] = user[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
     taskinfo = []
     for task in tasks:
         tmp = task.ap_to_dict()
@@ -234,7 +233,6 @@ def all(request):
         info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
         info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
         userinfo = task.owner.to_dict()
-        userinfo['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
         info['owner'] = userinfo
         tasks_info.append(info)
     resp['status'] = 0
