@@ -23,32 +23,35 @@ def new(request):
     give_time = request.POST['give_time']
     curtime = datetime.datetime.now()
     user = User.objects.filter(id = owner)
-    if user.exists() and len(user) == 1:
-        if user[0].status == 0:
-            resp['status'] = 3
-            resp['message'] = 'Not authenticated yet!'
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
-                    pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
-                    fetch_etime = datetime.datetime.strptime(fetch_etime, '%Y-%m-%d %H:%M:%S'), owner = user[0],
-                    give_time = datetime.datetime.strptime(give_time, '%Y-%m-%d %H:%M:%S'),
-                    build_time = curtime)
-        task.save()
-        if task.id != None:
-            resp['status'] = 0
-            resp['message'] = 'Success'
-            info = task.to_dict()
-            info['owner'] = task.owner.to_dict()
-            resp['data'] = info
-            return HttpResponse(json.dumps(resp), content_type = 'application/json')
-        else:
-            resp['status'] = 1
-            resp['message'] = 'Build error'
-            return HttpResponse(json.dumps(resp), content_type = 'application/json')
-    else:
-        resp['status'] = '2'
+    if not user.exists():
+        resp['status'] = 1
         resp['message'] = 'No such user'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    elif len(user) > 1:
+        resp['status'] = 2
+        resp['message'] = 'Too many user found, impossible!'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+    if user[0].status == 0:
+        resp['status'] = 3
+        resp['message'] = 'Not authenticated yet!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
+                pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
+                fetch_etime = datetime.datetime.strptime(fetch_etime, '%Y-%m-%d %H:%M:%S'), owner = user[0],
+                give_time = datetime.datetime.strptime(give_time, '%Y-%m-%d %H:%M:%S'), build_time = curtime)
+    task.save()
+    if task.id is None:
+        resp['status'] = 0
+        resp['message'] = 'Success'
+        info = task.to_dict()
+        info['owner'] = task.owner.to_dict()
+        resp['data'] = info
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    else:
+        resp['status'] = 4
+        resp['message'] = 'create task error'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 def get_ap_info(request, tid):
