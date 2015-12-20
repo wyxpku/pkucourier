@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^verify/$', views.verify, name='verify'),
     url(r'^message/$', views.send_message_admin, name='message'),
     url(r'^(\d+)/$', views.user_info, name='userinfo'),
+    url(r'^all/$', views.all, name='alluser'),
 ]
