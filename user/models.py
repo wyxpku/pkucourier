@@ -8,7 +8,7 @@ class User(models.Model):
     password = models.CharField(max_length = 50)
     status = models.IntegerField(default = 0) # authened or not, default 0, authened 1
     signup_time = models.DateTimeField()
-    avator = models.IntegerField()
+    avatar = models.IntegerField()
     bonus = models.IntegerField(default = 0)
     hx_username = models.CharField(max_length = 50, null = True)
     hx_password = models.CharField(max_length = 50, null = True)
