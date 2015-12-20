@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from task.models import Task
 from user.models import User
-
+from deal.models import Deal
+from django.db import transaction
 import json
 import datetime
 # Create your views here.
@@ -23,6 +24,11 @@ def new(request):
     curtime = datetime.datetime.now()
     user = User.objects.filter(id = owner)
     if user.exists() and len(user) == 1:
+        if user[0].status == 0:
+            resp['status'] = 3
+            resp['message'] = 'Not authenticated yet!'
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+
         task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
                     pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
                     fetch_etime = datetime.datetime.strptime(fetch_etime, '%Y-%m-%d %H:%M:%S'), owner = user[0],
@@ -33,12 +39,7 @@ def new(request):
             resp['status'] = 0
             resp['message'] = 'Success'
             info = task.to_dict()
-            info['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-            info['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-            info['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
-            info['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
             info['owner'] = task.owner.to_dict()
-            info['owner']['signup_time'] = task.owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
             resp['data'] = info
             return HttpResponse(json.dumps(resp), content_type = 'application/json')
         else:
@@ -69,12 +70,7 @@ def get_ap_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].ap_to_dict()
-    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
-    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
-    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
@@ -97,21 +93,77 @@ def get_info(request, tid):
     resp['status'] = 0
     resp['message'] = 'Success'
     info = task[0].to_dict()
-    info['fetch_btime'] = task[0].fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-    info['fetch_etime'] = task[0].fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-    info['give_time'] = task[0].give_time.strftime('%Y-%m-%d %H:%M:%S')
-    info['build_time'] = task[0].build_time.strftime('%Y-%m-%d %H:%M:%S')
     info['owner'] = task[0].owner.to_dict()
-    info['owner']['signup_time'] = task[0].owner.signup_time.strftime('%Y-%m-%d %H:%M:%S')
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
+@transaction.atomic
 def task_resp(request):
     resp = {}
     if request.method != 'POST':
-        resp['status'] = '1'
+        resp['status'] = 1
         resp['message'] = 'Wrong http method!'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    task_id = request.POST['task_id']
+    #owner_id = request.POST['owner_id']
+    user_id = request.POST['user_id']
+    task = None
+
+    try:
+        task = Task.objects.select_for_update().filter(id=task_id)
+    except:
+        resp['status'] = '7'
+        resp['message'] = 'datebase locked!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    if not task.exists():
+        resp['status'] = 2
+        resp['message'] = 'No such task'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    elif len(task) > 1:
+        resp['status'] = 3
+        resp['message'] = 'Too many tasks found'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].status == 1:
+        resp['status'] = 4
+        resp['message'] = 'Task is already toke by others'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    user = User.objects.filter(id=user_id)
+    if not user.exists():
+        resp['status'] = 5
+        resp['message'] = 'No such user'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if len(user) > 1:
+        resp['status'] = 6
+        resp['message'] = 'Too many user found, impossible!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if user[0].status == 0:
+        resp['status'] = 7
+        resp['message'] = 'Not authenticated yet!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].owner.id == user[0].id:
+        resp['status'] = 8
+        resp['message'] = 'You can\'t response to your own task!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    task[0].status = 1
+    task[0].save()
+    deal = Deal(task = task[0], needer = task[0].owner, helper=user[0], build_time=datetime.datetime.now())
+    deal.save()
+    if deal.id is None:
+        resp['status'] = 7
+        resp['message'] = 'Failed to create new deal'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    dealinfo = deal.to_dict()
+    neederinfo = deal.needer.to_dict()
+    helperinfo = deal.helper.to_dict()
+    dealinfo['needer'] = neederinfo
+    dealinfo['helper'] = helperinfo
+    dealinfo['task'] = task[0].id
+    resp['status'] = 0
+    resp['message'] = 'Success'
+    resp['data'] = dealinfo
+    return HttpResponse(json.dumps(resp), content_type='application/json')
 
 
 def get_user_tasks(request, uid):
@@ -132,17 +184,32 @@ def get_user_tasks(request, uid):
 
     tasks = Task.objects.filter(owner = user[0])
     userinfo = user[0].to_dict()
-    userinfo['signup_time'] = user[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
     taskinfo = []
     for task in tasks:
         tmp = task.ap_to_dict()
-        tmp['fetch_btime'] = task.fetch_btime.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['fetch_etime'] = task.fetch_etime.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['give_time'] = task.give_time.strftime('%Y-%m-%d %H:%M:%S')
-        tmp['build_time'] = task.build_time.strftime('%Y-%m-%d %H:%M:%S')
         tmp['owner'] = userinfo
         taskinfo.append(tmp)
     resp['status'] = 0
     resp['message'] = 'Success!!'
     resp['data'] = taskinfo
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+
+def all(request):
+    resp = {}
+    if request.method != 'GET':
+        resp['status'] = 1
+        resp['message'] = 'Wrong http method!'
+        return HttpResponse(json.dumps(json), content_type='application/json')
+
+    tasks = Task.objects.all()
+    tasks_info = []
+    for task in tasks:
+        info = task.ap_to_dict()
+        userinfo = task.owner.to_dict()
+        info['owner'] = userinfo
+        tasks_info.append(info)
+    resp['status'] = 0
+    resp['message'] = 'Success'
+    resp['data'] = tasks_info
+    return HttpResponse(json.dumps(resp), content_type='application/json')

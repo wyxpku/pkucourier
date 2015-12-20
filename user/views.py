@@ -20,7 +20,8 @@ def signup(request):
     username = request.POST['username']
     email = request.POST['email']
     password = request.POST['password']
-    if len(User.objects.filter(email = email)) > 0:
+    avatar = request.POST['avatar']
+    if User.objects.filter(email = email).exists():
         resp['status'] = 1;
         resp['message'] = 'The email account has been used!'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
@@ -34,21 +35,20 @@ def signup(request):
     # 向用户发送验证邮件
     if certify(email) is False:
         return HttpResponse('The email is wrong!')
-    if signupHX(hx_username, hx_password) is False:
-        return HttpResponse('Huanxin register failed!')
+    #if signupHX(hx_username, hx_password) is False:
+    #    return HttpResponse('Huanxin register failed!')
     u1 = User(name = username, email = email, password = password, signup_time = cur_time,
-              hx_username = hx_username, hx_password = hx_password)
+              hx_username = hx_username, hx_password = hx_password, avatar=avatar)
     u1.save()
-    if u1.id:
-        resp['status'] = 0
-        resp['message'] = 'Success!'
-        mydict = u1.to_dict()
-        mydict['signup_time'] = u1.signup_time.strftime('%Y-%m-%d %H:%M:%S')
-        resp['data'] = json.dumps(mydict)
-    else:
+    if u1.id is None:
         resp['status'] = 1
         resp['message'] = 'Failed!'
-    return HttpResponse(json.dumps(resp), content_type = 'application/json')
+        HttpResponse(json.dumps(resp), content_type = 'application/json')
+    else:
+        resp['status'] = 0
+        resp['message'] = 'Success!'
+        resp['data'] = u1.to_dict()
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 
 def login(request):
@@ -72,9 +72,7 @@ def login(request):
     if user[0].password == password:
         resp['status'] = 0
         resp['message'] = 'Success'
-        info = user[0].to_dict()
-        info['signup_time'] = user[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
-        resp['data'] = json.dumps(info)
+        resp['data'] = user[0].to_dict()
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
     else:
         resp['status'] = 3
@@ -84,7 +82,10 @@ def login(request):
 
 def all(request):
     users = User.objects.all()
-    return HttpResponse(len(users))
+    usersinfo = []
+    for usertmp in users:
+        usersinfo.append(usertmp.to_dict())
+    return HttpResponse(json.dumps(usersinfo), content_type='application/json')
 
 
 def user_info(request, uid):
@@ -106,9 +107,7 @@ def user_info(request, uid):
     else:
         resp['status'] = '0'
         resp['message'] = 'Success!'
-        info = tmpuser[0].to_dict()
-        info['signup_time'] = tmpuser[0].signup_time.strftime('%Y-%m-%d %H:%M:%S')
-        resp['data'] = json.dumps(info)
+        resp['data'] = tmpuser[0].to_dict()
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 
