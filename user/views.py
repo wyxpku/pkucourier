@@ -20,7 +20,8 @@ def signup(request):
     username = request.POST['username']
     email = request.POST['email']
     password = request.POST['password']
-    if len(User.objects.filter(email = email)) > 0:
+    avatar = request.POST['avatar']
+    if User.objects.filter(email = email).exists():
         resp['status'] = 1;
         resp['message'] = 'The email account has been used!'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
@@ -37,7 +38,7 @@ def signup(request):
     #if signupHX(hx_username, hx_password) is False:
     #    return HttpResponse('Huanxin register failed!')
     u1 = User(name = username, email = email, password = password, signup_time = cur_time,
-              hx_username = hx_username, hx_password = hx_password)
+              hx_username = hx_username, hx_password = hx_password, avatar=avatar)
     u1.save()
     if u1.id is None:
         resp['status'] = 1
