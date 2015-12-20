@@ -24,6 +24,11 @@ def new(request):
     curtime = datetime.datetime.now()
     user = User.objects.filter(id = owner)
     if user.exists() and len(user) == 1:
+        if user[0].status == 0:
+            resp['status'] = 3
+            resp['message'] = 'Not authenticated yet!'
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+
         task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
                     pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
                     fetch_etime = datetime.datetime.strptime(fetch_etime, '%Y-%m-%d %H:%M:%S'), owner = user[0],
@@ -134,22 +139,29 @@ def task_resp(request):
         resp['status'] = 3
         resp['message'] = 'Too many tasks found'
         return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].status == 1:
+        resp['status'] = 4
+        resp['message'] = 'Task is already toke by others'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
     user = User.objects.filter(id=user_id)
     if not user.exists():
-        resp['status'] = 4
+        resp['status'] = 5
         resp['message'] = 'No such user'
         return HttpResponse(json.dumps(resp), content_type='application/json')
-    if task[0].owner.id == user[0].id:
-        resp['status'] = 5
-        resp['message'] = 'You can\'t response to your own task!'
-        return HttpResponse(json.dumps(resp), content_type='application/json')
-    if task[0].status == 1:
+    if len(user) > 1:
         resp['status'] = 6
-        resp['message'] = 'Task is already toke by others'
+        resp['message'] = 'Too many user found, impossible!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if user[0].status == 0:
+        resp['status'] = 7
+        resp['message'] = 'Not authenticated yet!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task[0].owner.id == user[0].id:
+        resp['status'] = 8
+        resp['message'] = 'You can\'t response to your own task!'
         return HttpResponse(json.dumps(resp), content_type='application/json')
     task[0].status = 1
     task[0].save()
-
     deal = Deal(task = task[0], needer = task[0].owner, helper=user[0], build_time=datetime.datetime.now())
     deal.save()
     if deal.id is None:
