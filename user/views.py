@@ -178,8 +178,7 @@ def certify(email):
     code = email.encode()
     code = base64.urlsafe_b64encode(code)
     code = code.decode()
-    # this url should be changed
-    url = 'http://localhost:8000/user/verify/?coding=' + code
+    url = 'http://www.wyxpku.com/user/verify/?coding=' + code
     if send_mail(to_list, url):
         return True
     else:
