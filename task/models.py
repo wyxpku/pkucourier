@@ -19,10 +19,10 @@ class Task(models.Model):
         return dict(
             id = self.id, approximate_fplace = self.approximate_fplace, detailed_fplace = self.detailed_fplace,
             pto = self.pto, code = self.code, info = self.info, owner = self.owner,status = self.status,
-            fetch_btime = str(self.fetch_btime).strftime('%Y-%m-%d %H:%M:%S'),
-            fetch_etime = str(self.fetch_etime).strftime('%Y-%m-%d %H:%M:%S'),
-            build_time = str(self.build_time).strftime('%Y-%m-%d %H:%M:%S'),
-            give_time = str(self.give_time).strftime('%Y-%m-%d %H:%M:%S')
+            fetch_btime = self.fetch_btime.strftime('%Y-%m-%d %H:%M:%S'),
+            fetch_etime = self.fetch_etime.strftime('%Y-%m-%d %H:%M:%S'),
+            build_time = self.build_time.strftime('%Y-%m-%d %H:%M:%S'),
+            give_time = self.give_time.strftime('%Y-%m-%d %H:%M:%S')
         )
 
     # only return approximate information
@@ -30,8 +30,8 @@ class Task(models.Model):
         return dict(
             id = self.id, approximate_fplace = self.approximate_fplace, pto = self.pto,
             info = self.info, owner = self.owner, status = self.status,
-            fetch_btime = str(self.fetch_btime).strftime('%Y-%m-%d %H:%M:%S'),
-            fetch_etime = str(self.fetch_etime).strftime('%Y-%m-%d %H:%M:%S'),
-            build_time = str(self.build_time).strftime('%Y-%m-%d %H:%M:%S'),
-            give_time = str(self.give_time).strftime('%Y-%m-%d %H:%M:%S')
+            fetch_btime = self.fetch_btime.strftime('%Y-%m-%d %H:%M:%S'),
+            fetch_etime = self.fetch_etime.strftime('%Y-%m-%d %H:%M:%S'),
+            build_time = self.build_time.strftime('%Y-%m-%d %H:%M:%S'),
+            give_time = self.give_time.strftime('%Y-%m-%d %H:%M:%S')
         )
