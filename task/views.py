@@ -43,15 +43,15 @@ def new(request):
                 give_time = datetime.datetime.strptime(give_time, '%Y-%m-%d %H:%M:%S'), build_time = curtime)
     task.save()
     if task.id is None:
+        resp['status'] = 4
+        resp['message'] = 'create task error'
+        return HttpResponse(json.dumps(resp), content_type = 'application/json')
+    else:
         resp['status'] = 0
         resp['message'] = 'Success'
         info = task.to_dict()
         info['owner'] = task.owner.to_dict()
         resp['data'] = info
-        return HttpResponse(json.dumps(resp), content_type = 'application/json')
-    else:
-        resp['status'] = 4
-        resp['message'] = 'create task error'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
 
 def get_ap_info(request, tid):
