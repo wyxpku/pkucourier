@@ -216,3 +216,28 @@ def all(request):
     resp['message'] = 'Success'
     resp['data'] = tasks_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
+
+
+def delete_task(request):
+    resp = {}
+    if request.method != 'POST':
+        resp['status'] = 1
+        resp['message'] = 'Wrong http method'
+        return HttpResponse(json.dumps(json), content_type='application/json')
+
+    uid = request.POST['uid']
+    password = request.POST['password']
+    tid = request.POST['tid']
+
+    task = Task.objects.get(id=tid)
+    if task.owner.id != uid or task.owner.password != password:
+        resp['status'] = 2
+        resp['message'] = 'No authority'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+    if task.status == 1:    # already accepted
+        resp['status'] = 3
+        resp['message'] = 'Already accepted, cannot delete'
+    task.delete()
+    resp['status'] = 0
+    resp['message'] = 'ok'
+    return HttpResponse(json.dumps(resp), content_type='application/json')

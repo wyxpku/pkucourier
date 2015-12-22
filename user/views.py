@@ -35,8 +35,8 @@ def signup(request):
     # 向用户发送验证邮件
     if certify(email) is False:
         return HttpResponse('The email is wrong!')
-    #if signupHX(hx_username, hx_password) is False:
-    #    return HttpResponse('Huanxin register failed!')
+    if signupHX(hx_username, hx_password) is False:
+       return HttpResponse('Huanxin register failed!')
     u1 = User(name = username, email = email, password = password, signup_time = cur_time,
               hx_username = hx_username, hx_password = hx_password, avatar=avatar)
     u1.save()
@@ -180,8 +180,7 @@ def certify(email):
     code = email.encode()
     code = base64.urlsafe_b64encode(code)
     code = code.decode()
-    # this url should be changed
-    url = 'http://localhost:8000/user/verify/?coding=' + code
+    url = 'http://www.wyxpku.com/user/verify/?coding=' + code
     if send_mail(to_list, url):
         return True
     else:
