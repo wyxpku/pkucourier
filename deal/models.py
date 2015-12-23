@@ -12,4 +12,4 @@ class Deal(models.Model):
     task = models.ForeignKey(Task, related_name = 'order', null = True)
 
     def to_dict(self):
-        return dict(id=self.id, status=self.status, build_time=self.build_time.strftime('%Y-%m-%d %H:%M:%S'),helper=self.helper, needer=self.needer,task=self.task)
+        return dict(id=self.id, status=self.status, build_time=self.build_time.strftime('%Y-%m-%d %H:%M:%S'),helper=self.helper, needer=self.needer,task=self.task.ap_to_dict())
