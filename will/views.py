@@ -89,3 +89,25 @@ def all(request):
     resp['message'] = 'Success'
     resp['data'] = wills_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
+
+
+def delete_will(request):
+    resp = {}
+    if request.method == 'POST':
+        resp['status'] = 1
+        resp['message'] = 'Wrong http method'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    uid = request.POST['uid']
+    password = request.POST['password']
+    wid = request.POST['wid']
+
+    will = Will.objects.get(id=wid)
+    if will.owner.id != uid or will.owner.password != password:
+        resp['status'] = 2
+        resp['message'] = 'No authority'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    resp['status'] = 0
+    resp['message'] = 'ok'
+    return HttpResponse(json.dumps(resp), content_type='application/json')

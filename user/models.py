@@ -12,6 +12,7 @@ class User(models.Model):
     bonus = models.IntegerField(default = 0)
     hx_username = models.CharField(max_length = 50, null = True)
     hx_password = models.CharField(max_length = 50, null = True)
+    avatar = models.IntegerField(default=0)
 
     def to_dict(self):
         return dict(

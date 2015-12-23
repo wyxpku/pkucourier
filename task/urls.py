@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^resp/$', views.task_resp, name='taskresp'),
     url(r'^user/(\d+)/$', views.get_user_tasks, name='getUserTasks'),
     url(r'^all/$', views.all, name='alltasks'),
+    url(r'^delete/$', views.delete_task, name='deleteTask'),
 ]
