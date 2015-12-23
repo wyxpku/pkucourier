@@ -142,14 +142,25 @@ def send_message_admin(request):
         resp['status'] = '1'
         resp['message'] = 'Wrong method'
         return HttpResponse(json.dumps(resp), content_type='application/json')
+
     user = request.GET['user']
-    message = "hello from admin"
+    needer_id = request.GET['needer_id']
+
+    needer = User.objects.get(id=needer_id)
+    if needer is None:
+        resp['status'] = 2
+        resp['message'] = 'The needer does not exist'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    message = "PKU-Courier小秘书提醒您：%s(id: %s) 想让您帮TA取快递" % (needer.name, needer_id)
     html = send_message(user, message)
     tmp = json.loads(html)
     try:
         if tmp['data'][user] == 'success':
             resp['status'] = 0
             resp['message'] = 'ok'
+            resp['admin_name'] = 'PKU-Courier小秘书'
+            resp['avatar'] = 0
             return HttpResponse(json.dumps(resp), content_type='application/json')
         else:
             resp['status'] = 2
