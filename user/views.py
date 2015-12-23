@@ -145,7 +145,20 @@ def send_message_admin(request):
     user = request.GET['user']
     message = "hello from admin"
     html = send_message(user, message)
-    return HttpResponse(html, content_type='application/json')
+    tmp = json.loads(html)
+    try:
+        if tmp['data'][user] == 'success':
+            resp['status'] = 0
+            resp['message'] = 'ok'
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+        else:
+            resp['status'] = 2
+            resp['message'] = 'Message sent failed'
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+    except:
+        resp['status'] = 2
+        resp['message'] = 'Message sent failed'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
 
 # 注册环信
 def signupHX(username, password):
