@@ -70,6 +70,7 @@ def get_user_deals(request, uid):
 
     resp['status'] = 0
     resp['message'] = 'Success!'
+    resp['data'] = {}
     resp['data']['needer_deal'] = needer_deals_info
     resp['data']['helper_deal'] = helper_deals_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
