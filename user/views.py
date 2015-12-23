@@ -144,7 +144,8 @@ def send_message_admin(request):
         return HttpResponse(json.dumps(resp), content_type='application/json')
     user = request.GET['user']
     message = "hello from admin"
-    send_message(user, message)
+    html = send_message(user, message)
+    return HttpResponse(html, content_type='application/json')
 
 
 # 注册环信
