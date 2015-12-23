@@ -103,11 +103,13 @@ def delete_will(request):
     wid = request.POST['wid']
 
     will = Will.objects.get(id=wid)
-    if will.owner.id != uid or will.owner.password != password:
+    user = User.objects.get(id=uid)
+    if str(user.id) != str(uid) or str(user.password) != str(password):
         resp['status'] = 2
         resp['message'] = 'No authority'
         return HttpResponse(json.dumps(resp), content_type='application/json')
 
     resp['status'] = 0
     resp['message'] = 'ok'
+    will.delete()
     return HttpResponse(json.dumps(resp), content_type='application/json')

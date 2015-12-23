@@ -37,6 +37,11 @@ def new(request):
         resp['message'] = 'Not authenticated yet!'
         return HttpResponse(json.dumps(resp), content_type='application/json')
 
+    if user[0].bonus <= 0:
+        resp['status'] = 4
+        resp['message'] = 'You do not have enough bonus!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
     task = Task(approximate_fplace = approximate_fplace, detailed_fplace = detailed_fplace,
                 pto = pto, code = code, fetch_btime = datetime.datetime.strptime(fetch_btime, '%Y-%m-%d %H:%M:%S'),
                 fetch_etime = datetime.datetime.strptime(fetch_etime, '%Y-%m-%d %H:%M:%S'), owner = user[0],
@@ -47,12 +52,15 @@ def new(request):
         resp['message'] = 'create task error'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
     else:
+        user[0].bonus -= 1
+        user[0].save()
         resp['status'] = 0
         resp['message'] = 'Success'
         info = task.to_dict()
         info['owner'] = task.owner.to_dict()
         resp['data'] = info
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
 
 def get_ap_info(request, tid):
     resp = {}
@@ -217,6 +225,7 @@ def all(request):
     resp['data'] = tasks_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
 
+
 def delete_task(request):
     resp = {}
     if request.method != 'POST':
@@ -229,7 +238,12 @@ def delete_task(request):
     tid = request.POST['tid']
 
     task = Task.objects.get(id=tid)
-    if task.owner.id != uid or task.owner.password != password:
+    user = User.objects.get(id=uid)
+    if str(user.id) != str(uid) or str(user.password) != str(password):
+        print(user.id)
+        print(uid)
+        print(user.password)
+        print(password)
         resp['status'] = 2
         resp['message'] = 'No authority'
         return HttpResponse(json.dumps(resp), content_type='application/json')
