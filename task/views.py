@@ -6,6 +6,8 @@ from deal.models import Deal
 from django.db import transaction
 import json
 import datetime
+
+
 # Create your views here.
 def new(request):
     resp = {}
@@ -107,6 +109,7 @@ def get_info(request, tid):
     info['owner'] = task[0].owner.to_dict()
     resp['data'] = info
     return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
 
 @transaction.atomic
 def task_resp(request):
@@ -251,6 +254,8 @@ def delete_task(request):
         resp['status'] = 3
         resp['message'] = 'Already accepted, cannot delete'
     task.delete()
+    user.bonus += 1
+    user.save()
     resp['status'] = 0
     resp['message'] = 'ok'
     return HttpResponse(json.dumps(resp), content_type='application/json')

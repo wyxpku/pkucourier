@@ -27,4 +27,5 @@ def send_message(user, message):
     resp = request.urlopen(req)
     html = resp.read().decode()
 
+    return html
     # print(html)

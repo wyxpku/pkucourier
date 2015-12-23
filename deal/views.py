@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Deal
 from user.models import User
+from django.db import transaction
 import json
 # Create your views here.
 
@@ -73,6 +74,8 @@ def get_user_deals(request, uid):
     resp['data']['helper_deal'] = helper_deals_info
     return HttpResponse(json.dumps(resp), content_type='application/json')
 
+
+@transaction.atomic
 def complete(request):
     resp = {}
     if request.method != 'POST':
@@ -82,8 +85,13 @@ def complete(request):
     deal_id = request.POST['deal_id']
     email = request.POST['email']
     password = request.POST['password']
+    try:
+        deal = Deal.objects.select_for_update().filter(id=deal_id)
+    except:
+        resp['status'] = '4'
+        resp['message'] = 'datebase locked!'
+        return HttpResponse(json.dumps(resp), content_type='application/json')
 
-    deal = Deal.objects.filter(id=deal_id)
     if not deal.exists():
         resp['status'] = 2
         resp['message'] = 'No such deal'
@@ -93,6 +101,9 @@ def complete(request):
     if user.email == email and user.password == password:
         deal[0].status = 1
         deal[0].save()
+        helper = deal[0].helper
+        helper.bonus += 1
+        helper.save()
         resp['status'] = 0
         resp['message'] = 'Success'
         return HttpResponse(json.dumps(resp), content_type = 'application/json')
