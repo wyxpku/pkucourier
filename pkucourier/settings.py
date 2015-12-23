@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'pkucourier.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'NAME': '/home/pkucourier/db.sqlite3',
     }
 }
 
