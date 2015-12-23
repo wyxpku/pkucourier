@@ -146,8 +146,9 @@ def send_message_admin(request):
     user = request.GET['user']
     needer_id = request.GET['needer_id']
 
-    needer = User.objects.get(id=needer_id)
-    if needer is None:
+    try:
+        needer = User.objects.get(id=needer_id)
+    except:
         resp['status'] = 2
         resp['message'] = 'The needer does not exist'
         return HttpResponse(json.dumps(resp), content_type='application/json')
