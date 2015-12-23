@@ -9,10 +9,9 @@ class User(models.Model):
     status = models.IntegerField(default = 0) # authened or not, default 0, authened 1
     signup_time = models.DateTimeField()
     avatar = models.IntegerField()
-    bonus = models.IntegerField(default = 0)
+    bonus = models.IntegerField(default = 10)
     hx_username = models.CharField(max_length = 50, null = True)
     hx_password = models.CharField(max_length = 50, null = True)
-    avatar = models.IntegerField(default=0)
 
     def to_dict(self):
         return dict(
