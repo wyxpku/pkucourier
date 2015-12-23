@@ -26,5 +26,5 @@ def send_message(user, message):
     req = request.Request(url, params, header)
     resp = request.urlopen(req)
     html = resp.read().decode()
-
+    return html
     # print(html)

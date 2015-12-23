@@ -35,8 +35,8 @@ def signup(request):
     # 向用户发送验证邮件
     if certify(email) is False:
         return HttpResponse('The email is wrong!')
-    # if signupHX(hx_username, hx_password) is False:
-    #     return HttpResponse('Huanxin register failed!')
+    if signupHX(hx_username, hx_password) is False:
+        return HttpResponse('Huanxin register failed!')
     u1 = User(name = username, email = email, password = password, signup_time = cur_time,
               hx_username = hx_username, hx_password = hx_password, avatar=avatar)
     u1.save()
@@ -144,8 +144,8 @@ def send_message_admin(request):
         return HttpResponse(json.dumps(resp), content_type='application/json')
     user = request.GET['user']
     message = "hello from admin"
-    send_message(user, message)
-
+    html = send_message(user, message)
+    return HttpResponse(html, content_type='application/json')
 
 # 注册环信
 def signupHX(username, password):
